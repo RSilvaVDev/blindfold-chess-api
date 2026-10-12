@@ -77,15 +77,18 @@ pnpm prisma migrate dev # local schema change
 
 ## Environment
 
-`DATABASE_URL` (pooled), `DIRECT_URL` (migrations), `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (storage uploads), `AUDIO_BUCKET`, `ELEVENLABS_API_KEY`, `ELEVENLABS_DEFAULT_VOICE_ID`, `CORS_ORIGIN`, `PORT`.
+`DATABASE_URL` and `DIRECT_URL` (both the session pooler, port 5432), `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (storage uploads), `SUPABASE_JWKS_URL` (optional), `AUDIO_BUCKET`, `ELEVENLABS_API_KEY`, `ELEVENLABS_DEFAULT_VOICE_ID`, `CORS_ORIGIN`, `PORT`.
+
+Use Supabase's new API keys (`sb_publishable_...`, `sb_secret_...`). Never the legacy `anon` / `service_role` keys.
 
 Listed with placeholder values in `.env.example`. Validated when the app starts, not at build time, so CI builds without secrets.
 
 ## Known gotchas
 
 - `prisma generate` must run before `typecheck` or `build`; the `postinstall` script covers this in CI.
-- Use the pooled connection string for runtime and the direct one for migrations (`directUrl` in `schema.prisma`).
-- Check whether the Supabase project signs JWTs with asymmetric keys (JWKS) or the legacy shared secret, and write `SupabaseAuthGuard` to match. Fallback: `supabase.auth.getUser(token)`.
+- Both database variables use the session pooler (port 5432, no `?pgbouncer=true`). The direct `db.<ref>.supabase.co` host is IPv6-only on the free plan.
+- The project signs JWTs with ES256 (asymmetric). `SupabaseAuthGuard` verifies them with `verifyCredentials` from `@supabase/server/core`, pinned with `issuer: fromSupabaseUrl(SUPABASE_URL)`; `fromSupabaseUrl` is exported from `@supabase/server`, not `/core`. Do not use the deprecated `@supabase/server/adapters/nestjs` (removed December 1, 2026).
+- `@supabase/server` is public beta: keep it pinned to an exact version. Its docs ship in `node_modules/@supabase/server/docs/`.
 - `@nestjs/throttler` keys by IP by default; `UserThrottlerGuard` overrides `getTracker` to use the user id.
 - Railway runs `prisma migrate deploy` on release, then starts the app. The health check points at `/health`.
 - Email confirmation is off in Supabase so reviewers can log in immediately.

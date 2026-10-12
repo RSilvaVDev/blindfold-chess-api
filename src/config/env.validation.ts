@@ -14,6 +14,11 @@ const ORIGIN_LIST = /^https?:\/\/[^\s/,]+(,https?:\/\/[^\s/,]+)*$/;
 
 const POSTGRES_URL = /^postgres(ql)?:\/\/\S+$/;
 
+// HTTPS project URL, or plain HTTP only for a local Supabase CLI stack: the JWT
+// signing keys are fetched from this origin, so it must not be spoofable.
+const SUPABASE_PROJECT_URL =
+  /^(https:\/\/[^\s/]+|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/;
+
 export enum NodeEnv {
   Development = 'development',
   Production = 'production',
@@ -49,6 +54,12 @@ export class EnvironmentVariables {
     message: 'DIRECT_URL must be a postgresql:// connection string',
   })
   DIRECT_URL!: string;
+
+  @Matches(SUPABASE_PROJECT_URL, {
+    message:
+      'SUPABASE_URL must be the project URL like https://<project-ref>.supabase.co (no path or trailing slash)',
+  })
+  SUPABASE_URL!: string;
 }
 
 export function parseCorsOrigins(value: string): string[] {
