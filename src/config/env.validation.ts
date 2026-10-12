@@ -2,7 +2,9 @@ import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsOptional,
+  IsString,
   Matches,
   Max,
   Min,
@@ -60,6 +62,17 @@ export class EnvironmentVariables {
       'SUPABASE_URL must be the project URL like https://<project-ref>.supabase.co (no path or trailing slash)',
   })
   SUPABASE_URL!: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'ELEVENLABS_API_KEY is required for speech' })
+  ELEVENLABS_API_KEY!: string;
+
+  // Defaults to the premade "George" voice.
+  @IsOptional()
+  @Matches(/^[A-Za-z0-9]{20}$/, {
+    message: 'ELEVENLABS_DEFAULT_VOICE_ID must be an ElevenLabs voice id',
+  })
+  ELEVENLABS_DEFAULT_VOICE_ID: string = 'JBFqnCBsd6RMkjVDRZzb';
 }
 
 export function parseCorsOrigins(value: string): string[] {

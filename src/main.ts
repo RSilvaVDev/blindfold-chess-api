@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
@@ -9,6 +10,11 @@ import {
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService<EnvironmentVariables, true>);
+
+  // Rejects unknown or malformed request body fields before any handler runs.
+  app.useGlobalPipes(
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+  );
 
   // Runs onModuleDestroy (Prisma disconnect) when Railway stops the container with SIGTERM.
   app.enableShutdownHooks();

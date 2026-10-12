@@ -67,7 +67,7 @@ pnpm prisma migrate dev # local schema change
 - Every request body has a DTO validated by `class-validator` through a global `ValidationPipe` with `whitelist: true`.
 - The ElevenLabs key and the Supabase secret key exist only in this service's env. Never return them, log them, or send them to the client.
 - `/tts` is protected by `SupabaseAuthGuard` and `UserThrottlerGuard`, and rejects text over the max length in `SynthesizeDto`.
-- Audio is cached by a hash of text plus voice id. Check `AudioCacheModel` before calling ElevenLabs.
+- Audio is cached by a SHA-256 hash of voice id plus text, in memory (last 500 clips, `TtsService`), and `/tts` returns the MP3 bytes directly. Supabase Storage and `AudioCacheModel` are a later step for a cache that survives restarts.
 - Never commit secrets. `.gitignore` covers `.env`, `.env.*` (except `.env.example`), `*.pem`, `*.key`, `node_modules`, `dist`, `coverage`, `*.tsbuildinfo`, and logs. Prisma migrations are committed. Check `git status` for env or key files before every commit.
 
 ## Workflow
