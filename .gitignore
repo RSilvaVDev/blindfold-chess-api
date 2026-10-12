@@ -18,6 +18,9 @@ coverage/
 npm-debug.log*
 pnpm-debug.log*
 
+# Local Claude Code settings
+.claude/
+
 # Editor and OS
 .vscode/
 .idea/
