@@ -44,6 +44,7 @@ pnpm install            # postinstall runs prisma generate
 pnpm dev                # nest start --watch
 pnpm format             # prettier --write .
 pnpm format:check       # prettier --check .
+pnpm lint               # eslint . (type-aware typescript-eslint rules)
 pnpm typecheck          # tsc --noEmit
 pnpm build              # nest build
 pnpm prisma migrate dev # local schema change
@@ -64,7 +65,7 @@ pnpm prisma migrate dev # local schema change
 - Prisma connects as the database owner and bypasses row-level security. Every query is scoped by the user id from `SupabaseAuthGuard`, read with `@CurrentUser()`. Never read a user id from the request body or query string.
 - Every migration that creates a table also runs `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` with no policies. Supabase exposes `public` tables through its REST API with the public anon key; RLS closes that path while Prisma (the table owner) is unaffected.
 - Every request body has a DTO validated by `class-validator` through a global `ValidationPipe` with `whitelist: true`.
-- The ElevenLabs key and the Supabase service role key exist only in this service's env. Never return them, log them, or send them to the client.
+- The ElevenLabs key and the Supabase secret key exist only in this service's env. Never return them, log them, or send them to the client.
 - `/tts` is protected by `SupabaseAuthGuard` and `UserThrottlerGuard`, and rejects text over the max length in `SynthesizeDto`.
 - Audio is cached by a hash of text plus voice id. Check `AudioCacheModel` before calling ElevenLabs.
 - Never commit secrets. `.gitignore` covers `.env`, `.env.*` (except `.env.example`), `*.pem`, `*.key`, `node_modules`, `dist`, `coverage`, `*.tsbuildinfo`, and logs. Prisma migrations are committed. Check `git status` for env or key files before every commit.
@@ -72,7 +73,7 @@ pnpm prisma migrate dev # local schema change
 ## Workflow
 
 - Work follows the build plan's commit order, one commit per plan entry, using the plan's commit message.
-- Every commit leaves the repo formatting cleanly, type-checking, building, and deployable. Before proposing a commit, run `pnpm format:check`, `pnpm typecheck`, and `pnpm build`. CI (`.github/workflows/ci.yml`) runs the same on every push and pull request.
+- Every commit leaves the repo formatting cleanly, type-checking, building, and deployable. Before proposing a commit, run `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, and `pnpm build`. Fix lint errors instead of disabling rules; if a rule is pure noise, turn it off in `eslint.config.mjs` with a one-line reason. CI (`.github/workflows/ci.yml`) runs the same on every push and pull request.
 - A change that also needs the web client is two commits, one per repo.
 
 ## Environment

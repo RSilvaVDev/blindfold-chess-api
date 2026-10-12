@@ -12,6 +12,7 @@
     "start:prod": "node dist/main",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate"
   },
@@ -28,17 +29,22 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
+    "eslint": "10.12.0",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.13.0",
     "prettier": "^3.4.2",
     "prisma": "6.19.3",
     "source-map-support": "^0.5.21",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "8.71.1"
   },
   "engines": {
     "node": ">=22"
