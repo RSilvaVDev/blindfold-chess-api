@@ -10,7 +10,7 @@ Out (do not build unless asked): saving/resuming games, game history, hints, spe
 
 ## Stack
 
-NestJS, TypeScript (strict), Prisma on Supabase Postgres, Supabase Auth (JWT verification) and Storage (cached audio), ElevenLabs, `@nestjs/throttler`, `class-validator`. Deployed as one Railway service.
+NestJS, TypeScript (strict), Prisma 6 on Supabase Postgres (not Prisma 7: its ESM client and required driver adapter clash with Nest's CommonJS build), Supabase Auth (JWT verification) and Storage (cached audio), ElevenLabs, `@nestjs/throttler`, `class-validator`. Deployed as one Railway service.
 
 ## Layout
 
@@ -62,6 +62,7 @@ pnpm prisma migrate dev # local schema change
 ## Rules that must hold
 
 - Prisma connects as the database owner and bypasses row-level security. Every query is scoped by the user id from `SupabaseAuthGuard`, read with `@CurrentUser()`. Never read a user id from the request body or query string.
+- Every migration that creates a table also runs `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` with no policies. Supabase exposes `public` tables through its REST API with the public anon key; RLS closes that path while Prisma (the table owner) is unaffected.
 - Every request body has a DTO validated by `class-validator` through a global `ValidationPipe` with `whitelist: true`.
 - The ElevenLabs key and the Supabase service role key exist only in this service's env. Never return them, log them, or send them to the client.
 - `/tts` is protected by `SupabaseAuthGuard` and `UserThrottlerGuard`, and rejects text over the max length in `SynthesizeDto`.

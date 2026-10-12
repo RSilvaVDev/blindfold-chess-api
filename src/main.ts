@@ -10,6 +10,9 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService<EnvironmentVariables, true>);
 
+  // Runs onModuleDestroy (Prisma disconnect) when Railway stops the container with SIGTERM.
+  app.enableShutdownHooks();
+
   // Only the web client may call the API from a browser; auth uses a bearer token, not cookies.
   app.enableCors({
     origin: parseCorsOrigins(config.get('CORS_ORIGIN', { infer: true })),

@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled connection (Supabase transaction pooler) for the running app.
+  url       = env("DATABASE_URL")
+  // Direct connection for migrations; the pooler cannot run them.
+  directUrl = env("DIRECT_URL")
+}
+
+enum Verbosity {
+  brief
+  standard
+  full
+
+  @@map("verbosity")
+}
+
+// One row per Supabase auth user. user_id is the JWT subject, so no foreign key
+// into Supabase's auth schema.
+model ProfileModel {
+  userId       String    @id @map("user_id") @db.Uuid
+  voiceId      String?   @map("voice_id")
+  verbosity    Verbosity @default(standard)
+  confirmMoves Boolean   @default(true) @map("confirm_moves")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@map("profiles")
+}
+
+// Text-to-speech results keyed by a hash of voice id and text, so a repeated line
+// never calls ElevenLabs twice.
+model AudioCacheModel {
+  hash        String   @id
+  voiceId     String   @map("voice_id")
+  storagePath String   @map("storage_path")
+  chars       Int
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("audio_cache")
+}

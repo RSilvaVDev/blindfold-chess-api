@@ -4,6 +4,7 @@
     "builder": "RAILPACK"
   },
   "deploy": {
+    "preDeployCommand": ["pnpm prisma migrate deploy"],
     "startCommand": "pnpm start:prod",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 60,

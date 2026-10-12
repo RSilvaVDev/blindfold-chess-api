@@ -12,6 +12,8 @@ import {
 // One or more comma-separated origins: scheme, host, optional port, no path.
 const ORIGIN_LIST = /^https?:\/\/[^\s/,]+(,https?:\/\/[^\s/,]+)*$/;
 
+const POSTGRES_URL = /^postgres(ql)?:\/\/\S+$/;
+
 export enum NodeEnv {
   Development = 'development',
   Production = 'production',
@@ -36,6 +38,17 @@ export class EnvironmentVariables {
       'CORS_ORIGIN must be one or more comma-separated origins like https://app.example.com (no path or trailing slash)',
   })
   CORS_ORIGIN!: string;
+
+  // Messages never include the value: connection strings carry the database password.
+  @Matches(POSTGRES_URL, {
+    message: 'DATABASE_URL must be a postgresql:// connection string',
+  })
+  DATABASE_URL!: string;
+
+  @Matches(POSTGRES_URL, {
+    message: 'DIRECT_URL must be a postgresql:// connection string',
+  })
+  DIRECT_URL!: string;
 }
 
 export function parseCorsOrigins(value: string): string[] {
