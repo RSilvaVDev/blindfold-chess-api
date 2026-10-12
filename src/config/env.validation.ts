@@ -3,10 +3,14 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
+  Matches,
   Max,
   Min,
   validateSync,
 } from 'class-validator';
+
+// One or more comma-separated origins: scheme, host, optional port, no path.
+const ORIGIN_LIST = /^https?:\/\/[^\s/,]+(,https?:\/\/[^\s/,]+)*$/;
 
 export enum NodeEnv {
   Development = 'development',
@@ -26,6 +30,16 @@ export class EnvironmentVariables {
   @Min(1)
   @Max(65535)
   PORT: number = 3000;
+
+  @Matches(ORIGIN_LIST, {
+    message:
+      'CORS_ORIGIN must be one or more comma-separated origins like https://app.example.com (no path or trailing slash)',
+  })
+  CORS_ORIGIN!: string;
+}
+
+export function parseCorsOrigins(value: string): string[] {
+  return value.split(',');
 }
 
 // Runs once at boot so a missing or malformed variable fails fast instead of at first use.
